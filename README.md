@@ -1,3 +1,7 @@
+Video HOW-TO
+
+https://www.youtube.com/watch?v=dkIUxUBbn6U
+
 # Overview
 **CubeCell-GPS Helium Mapper** based on https://github.com/jas-williams/CubeCell-Helium-Mapper.git with the following improvements:
 
@@ -59,7 +63,7 @@ Revision changes:
 
 **Note: If you prefer to use Arduino IDE, just take the \src\main.cpp file and rename it to "something".ino (for example CubeCell_GPS_Helium_Mapper.ino)**
 
-Install Serial Driver. Find directions [here.](https://heltec-automation-docs.readthedocs.io/en/latest/general/establish_serial_connection.html)
+Install Serial Driver. https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers?tab=downloads
 
 Install [Visual Studio Code](https://code.visualstudio.com/Download). If you are using Windows, make sure the pick the System installer, not the User installer.
 
@@ -116,38 +120,77 @@ In [Helium Console](https://console.helium.com/) create a new function call it H
 Copy and paste the decoder into the custom script pane
 
 ```
-function Decoder(bytes, port) {
-  var decoded = {};
-  
-  var latitude = ((bytes[0]<<16)>>>0) + ((bytes[1]<<8)>>>0) + bytes[2];
-  latitude = (latitude / 16777215.0 * 180) - 90;
-  
-  var longitude = ((bytes[3]<<16)>>>0) + ((bytes[4]<<8)>>>0) + bytes[5];
-  longitude = (longitude / 16777215.0 * 360) - 180;
-  
-  switch (port)
-  {
-    case 2:
-      decoded.latitude = latitude;
-      decoded.longitude = longitude; 
-      
-      var altValue = ((bytes[6]<<8)>>>0) + bytes[7];
-      var sign = bytes[6] & (1 << 7);
-      if(sign) decoded.altitude = 0xFFFF0000 | altValue;
-      else decoded.altitude = altValue;
-      
-      decoded.speed = parseFloat((((bytes[8]))/1.609).toFixed(2));
-      decoded.battery = parseFloat((bytes[9]/100 + 2).toFixed(2));
-      decoded.sats = bytes[10];
-      decoded.accuracy = 2.5;
-      break;
-    case 3:
-      decoded.last_latitude = latitude;
-      decoded.last_longitude = longitude; 
-      break;
-  }
-     
-  return decoded;  
+function RabbitDecoder(bytes, port)
+{
+    var decoded = {};
+    
+    var latitude = ((bytes[0]<<16)>>>0) + ((bytes[1]<<8)>>>0) + bytes[2];
+    latitude = (latitude / 16777215.0 * 180) - 90;
+    
+    var longitude = ((bytes[3]<<16)>>>0) + ((bytes[4]<<8)>>>0) + bytes[5];
+    longitude = (longitude / 16777215.0 * 360) - 180;
+    
+    var altValue = ((bytes[6]<<8)>>>0) + bytes[7];
+    var sign = bytes[6] & (1 << 7);
+    
+    switch (port)
+    {
+    
+        case 2: case 3:
+        
+            decoded.latitude = latitude;
+            decoded.longitude = longitude; 
+            
+            if(sign) decoded.altitude = 0xFFFF0000 | altValue;
+            else decoded.altitude = altValue;
+            
+            decoded.battery = parseFloat((bytes[8]/100 + 2).toFixed(2));
+            decoded.sats = bytes[9];
+            decoded.hdop = bytes[10]/10;
+            
+            if (typeof bytes[11] !== 'undefined') decoded.temperature = parseFloat((bytes[11]/5).toFixed(1));
+            
+        break;
+        
+        
+        case 4:
+            
+            decoded.sats = 0;
+            decoded.latitude = latitude;
+            decoded.longitude = longitude; 
+            decoded.battery = parseFloat((bytes[6]/100 + 2).toFixed(2));
+            
+            if (typeof bytes[7] !== 'undefined') decoded.temperature = parseFloat((bytes[7]/5).toFixed(1));
+            
+        break;
+        
+        
+        case 5: case 6: case 7: case 8: case 9: case 10: case 11: 
+            
+            decoded.sats = 0;
+            decoded.battery = parseFloat((bytes[0]/100 + 2).toFixed(2));
+            
+            if (typeof bytes[1] !== 'undefined') decoded.temperature = parseFloat((bytes[1]/5).toFixed(1));
+            
+        break;
+        
+        case 12: 
+            
+            decoded.nonstop = bytes[0]
+            decoded.distance = bytes[1]
+            decoded.screen = bytes[2]
+            decoded.autosleep = bytes[3]
+            decoded.gpswait = bytes[4]
+            decoded.sleepupdate = bytes[5]
+            decoded.deepsleep = bytes[6]
+            
+            if (decoded.screen == 0) decoded.screen = 1
+            else                     decoded.screen = 0
+
+        break;
+    }
+
+    return decoded
 }
 
 ```
@@ -169,21 +212,6 @@ Useful links:
 [Integration information for Cargo](https://docs.helium.com/use-the-network/console/integrations/cargo/)
 
 # Vibration sensor
-Theoretically, any sensor that can provide digital output could be used.
-
-For now, we have information about these 2 options:
-
-- SW-420 board
-![SW-420 board](img/SW-420_board.jpg)
-
-If you want to use the board, you have to connect it the following way:
-```
-VCC - VDD
-GND - GND
-DO  - GPIOx where you pick which one to use, GPIO7 is the closest one on the CubeCell board
-```
-
-- SW-420 bare sensor
 
 ![SW-420 sensor](img/SW-420_sensor.jpg)
 
