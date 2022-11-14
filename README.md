@@ -120,7 +120,7 @@ In [Helium Console](https://console.helium.com/) create a new function call it H
 Copy and paste the decoder into the custom script pane
 
 ```
-function RabbitDecoder(bytes, port)
+function Decoder(bytes, port)
 {
     var decoded = {};
     
