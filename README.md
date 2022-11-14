@@ -134,14 +134,10 @@ function Decoder(bytes, port)
     var altValue = ((bytes[6]<<8)>>>0) + bytes[7];
     var sign = bytes[6] & (1 << 7);
     
+    if (port == 2) decoded.accuracy = 2.5;
+    
     switch (port)
     {
-        case 2:
-            
-            decoded.accuracy = 2.5;
-            
-        break;
-    
         case 2: case 3:
         
             decoded.latitude = latitude;
