@@ -123,6 +123,7 @@ Copy and paste the decoder into the custom script pane
 function Decoder(bytes, port)
 {
     var decoded = {};
+    decoded.device = "rabbit-tracker";
     
     var latitude = ((bytes[0]<<16)>>>0) + ((bytes[1]<<8)>>>0) + bytes[2];
     latitude = (latitude / 16777215.0 * 180) - 90;
@@ -135,6 +136,11 @@ function Decoder(bytes, port)
     
     switch (port)
     {
+        case 2:
+            
+            decoded.accuracy = 2.5;
+            
+        break;
     
         case 2: case 3:
         
@@ -151,8 +157,7 @@ function Decoder(bytes, port)
             if (typeof bytes[11] !== 'undefined') decoded.temperature = parseFloat((bytes[11]/5).toFixed(1));
             
         break;
-        
-        
+
         case 4:
             
             decoded.sats = 0;
