@@ -4,7 +4,7 @@ https://www.youtube.com/watch?v=dkIUxUBbn6U
 
 # Overview
 
-(./img/solar-supercap.jpg)
+(img/solar-supercap.jpg)
 
 # Uploading the code
 
