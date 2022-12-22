@@ -4,7 +4,7 @@ https://www.youtube.com/watch?v=dkIUxUBbn6U
 
 # Overview
 
-(img/solar-supercap.jpg)
+![image](https://user-images.githubusercontent.com/35274849/209229932-9f8a440a-cd51-471e-9da5-70bdc068e7aa.png)
 
 # Uploading the code
 
