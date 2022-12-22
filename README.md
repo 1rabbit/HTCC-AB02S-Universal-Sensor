@@ -117,84 +117,9 @@ Click the PlatformIO: Serial Monitor button
 
 In [Helium Console](https://console.helium.com/) create a new function call it Heltec decoder => Type Decoder => Custom Script
 
-Copy and paste the decoder into the custom script pane
+Copy and paste the decoder into the custom script pane :
 
-```
-function Decoder(bytes, port)
-{
-    var decoded = {};
-    decoded.device = "rabbit-tracker";
-    
-    var latitude = ((bytes[0]<<16)>>>0) + ((bytes[1]<<8)>>>0) + bytes[2];
-    latitude = (latitude / 16777215.0 * 180) - 90;
-    
-    var longitude = ((bytes[3]<<16)>>>0) + ((bytes[4]<<8)>>>0) + bytes[5];
-    longitude = (longitude / 16777215.0 * 360) - 180;
-    
-    var altValue = ((bytes[6]<<8)>>>0) + bytes[7];
-    var sign = bytes[6] & (1 << 7);
-    
-    if (port == 2) decoded.accuracy = 2.5;
-    
-    switch (port)
-    {
-        case 2: case 3:
-        
-            decoded.latitude = latitude;
-            decoded.longitude = longitude; 
-            
-            if(sign) decoded.altitude = 0xFFFF0000 | altValue;
-            else decoded.altitude = altValue;
-            
-            decoded.battery = parseFloat((bytes[8]/100 + 2).toFixed(2));
-            decoded.sats = bytes[9];
-            decoded.hdop = bytes[10]/10;
-            
-            if (typeof bytes[11] !== 'undefined') decoded.temperature = parseFloat((bytes[11]/5).toFixed(1));
-            
-        break;
-
-        case 4:
-            
-            decoded.sats = 0;
-            decoded.latitude = latitude;
-            decoded.longitude = longitude; 
-            decoded.battery = parseFloat((bytes[6]/100 + 2).toFixed(2));
-            
-            if (typeof bytes[7] !== 'undefined') decoded.temperature = parseFloat((bytes[7]/5).toFixed(1));
-            
-        break;
-        
-        
-        case 5: case 6: case 7: case 8: case 9: case 10: case 11: 
-            
-            decoded.sats = 0;
-            decoded.battery = parseFloat((bytes[0]/100 + 2).toFixed(2));
-            
-            if (typeof bytes[1] !== 'undefined') decoded.temperature = parseFloat((bytes[1]/5).toFixed(1));
-            
-        break;
-        
-        case 12: 
-            
-            decoded.nonstop = bytes[0]
-            decoded.distance = bytes[1]
-            decoded.screen = bytes[2]
-            decoded.autosleep = bytes[3]
-            decoded.gpswait = bytes[4]
-            decoded.sleepupdate = bytes[5]
-            decoded.deepsleep = bytes[6]
-            
-            if (decoded.screen == 0) decoded.screen = 1
-            else                     decoded.screen = 0
-
-        break;
-    }
-
-    return decoded
-}
-
-```
+https://github.com/1rabbit/HTCC-AB02S-Universal-Sensor/blob/master/rabbit_universal_decoder.js
 
 Create two integrations one for CARGO (optional) and one for MAPPERS.
 For CARGO use the available prebuilt integration. 
