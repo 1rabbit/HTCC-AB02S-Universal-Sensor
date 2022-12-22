@@ -4,6 +4,8 @@ https://www.youtube.com/watch?v=dkIUxUBbn6U
 
 # Overview
 
+(./img/solar-supercap.jpg)
+
 # Uploading the code
 
 **Note: If you prefer to use Arduino IDE, just take the \src\main.cpp file and rename it to "something".ino (for example CubeCell_GPS_Helium_Mapper.ino)**
